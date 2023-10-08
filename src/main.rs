@@ -1,4 +1,8 @@
-use grammar::Expr;
+#![allow(dead_code)]
+mod widgets;
+use widgets::*;
+mod grammer;
+use grammer::grammar;
 
 use std::{
     env::{args, Args},
@@ -33,63 +37,6 @@ fn read_file(args: &mut Args) -> Result<String, String> {
     }
 }
 
-#[rust_sitter::grammar("arithmetic")]
-mod grammar {
-    #[derive(Debug)]
-    #[rust_sitter::language]
-    pub enum Expr {
-        Number(
-            #[rust_sitter::leaf(pattern = r"\d+", transform = |v| v.parse().unwrap())]
-            u32
-        ),
-        #[rust_sitter::prec_left(3)]
-        Param(
-            #[rust_sitter::leaf(text = "(")] (),
-            Box<Expr>,
-            #[rust_sitter::leaf(text = ")")] (),
-        ),
-        #[rust_sitter::prec_left(1)]
-        Add(
-            Box<Expr>,
-            #[rust_sitter::leaf(text = "+")] (),
-            Box<Expr>
-        ),
-        #[rust_sitter::prec_left(1)]
-        Sub(
-            Box<Expr>,
-            #[rust_sitter::leaf(text = "-")] (),
-            Box<Expr>
-        ),
-        #[rust_sitter::prec_left(2)]
-        Multi(Box<Expr>,
-            #[rust_sitter::leaf(text = "*")] (),
-            Box<Expr>
-        ),
-        #[rust_sitter::prec_left(2)]
-        Div(Box<Expr>,
-            #[rust_sitter::leaf(text = "/")] (),
-            Box<Expr>
-        ),
-    }
-
-    #[rust_sitter::extra]
-    struct Whitespace {
-        #[rust_sitter::leaf(pattern = r"\s")]
-        _whitespace: (),
-    }
-}
-
-fn evaluate(expr: &Expr) -> u32 {
-    match expr {
-        Expr::Number(value) => *value,
-        Expr::Add(left, _, right) => evaluate(left) + evaluate(right),
-        Expr::Sub(left, _, right) => evaluate(left) - evaluate(right),
-        Expr::Multi(left, _, right) => evaluate(left) * evaluate(right),
-        Expr::Div(left, _, right) => evaluate(left) / evaluate(right),
-        Expr::Param(_, expr, _) => evaluate(expr),
-    }
-}
-
 fn main() {
     let mut args = args();
     let input = match read_file(&mut args) {
@@ -100,9 +47,14 @@ fn main() {
         }
     };
 
-    let tree = grammar::parse(&input).unwrap();
+    let tree = match grammar::parse(&input) {
+        Ok(s) => s,
+        Err(err) => {
+            eprintln!("Error; {:#?}", err);
+            return;
+        }
+    };
     println!("{:#?}", tree);
-    let mut _leaves: Vec<u32> = Vec::new();
-    let res = evaluate(&tree);
-    println!("{:?}", res)
+    let window = Window::from(tree);
+    println!("{:#?}", window)
 }
