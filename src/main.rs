@@ -55,6 +55,6 @@ fn main() {
         }
     };
     println!("{:#?}", tree);
-    let window = Window::from(tree);
-    println!("{:#?}", window)
+    let window = Box::new(Window::from(tree));
+    println!("{:#?}", window);
 }
