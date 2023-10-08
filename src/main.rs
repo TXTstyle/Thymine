@@ -1,60 +1,49 @@
 #![allow(dead_code)]
-mod widgets;
-use widgets::*;
 mod grammer;
+mod utils;
+mod widgets;
+mod ui;
 use grammer::grammar;
+use ui::*;
+use std::env::args;
+use std::rc::Rc;
+use widgets::*;
 
-use std::{
-    env::{args, Args},
-    fs::File,
-    io::{BufReader, Read},
-    path::PathBuf,
-};
+use gtk::prelude::*;
+use gtk::{glib, Application};
 
-fn read_file(args: &mut Args) -> Result<String, String> {
-    let file_path = match args.position(|x| x == "-f") {
-        Some(_) => match args.next() {
-            Some(s) => PathBuf::from(s),
-            None => {
-                return Err("No file path given!".to_string());
-            }
-        },
-        None => {
-            return Err("Must give a file flag; -f".to_string());
-        }
-    };
+const APP_ID: &str = "com.TXTstyle.tree";
 
-    match File::open(file_path) {
-        Ok(f) => {
-            let mut buf = BufReader::new(f);
-            let mut res = String::new();
-            match buf.read_to_string(&mut res) {
-                Ok(_) => Ok(res),
-                Err(err) => Err(format!("Unable to read file; {}", err)),
-            }
-        }
-        Err(err) => Err(format!("Unable to open file; {}", err)),
-    }
-}
-
-fn main() {
+fn main() -> glib::ExitCode {
     let mut args = args();
-    let input = match read_file(&mut args) {
+    let input = match utils::read_file(&mut args, "-f") {
         Ok(i) => i,
         Err(err) => {
             eprintln!("{}", err);
-            return;
+            return glib::ExitCode::FAILURE;
         }
     };
+
+    let css_data = utils::read_file(&mut args, "-c").ok();
 
     let tree = match grammar::parse(&input) {
         Ok(s) => s,
         Err(err) => {
             eprintln!("Error; {:#?}", err);
-            return;
+            return glib::ExitCode::FAILURE;
         }
     };
-    println!("{:#?}", tree);
-    let window = Box::new(Window::from(tree));
-    println!("{:#?}", window);
+    let window = Rc::new(Window::from(tree));
+
+    let app = Application::builder().application_id(APP_ID).build();
+
+    if let Some(css) = css_data {
+        app.connect_startup(move |_| load_css(css.to_owned()));
+    } else {
+        eprintln!("No css file found, not loading css.");
+    }
+    app.connect_activate(move |a| build_ui(a, window.clone()));
+    let empty: Vec<String> = vec![];
+    app.run_with_args(&empty)
 }
+

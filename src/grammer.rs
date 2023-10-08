@@ -85,7 +85,7 @@ pub mod grammar {
         #[rust_sitter::leaf(text = r"$spacing")]
         class: (),
         #[rust_sitter::leaf(pattern = r"\d+", transform = |d| d.parse().unwrap())]
-        pub spacing: u32,
+        pub spacing: i32,
     }
 
     #[derive(Debug)]
@@ -127,7 +127,7 @@ pub mod grammar {
     pub struct Title {
         #[rust_sitter::leaf(text = "\"")]
         _param: (),
-        #[rust_sitter::leaf(pattern = r"[\w\s]+", transform = |v| v.to_string())]
+        #[rust_sitter::leaf(pattern = r"[\w\s!]+", transform = |v| v.to_string())]
         pub title: String,
         #[rust_sitter::leaf(text = "\"")]
         _param_end: (),

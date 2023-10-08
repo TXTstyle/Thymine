@@ -2,8 +2,8 @@ use crate::grammar::*;
 
 #[derive(Debug)]
 pub struct Window {
-    title: String,
-    child: Option<WidgetType>,
+    pub title: String,
+    pub child: Option<WidgetType>,
 }
 
 #[derive(Debug)]
@@ -24,8 +24,8 @@ pub struct Label {
 
 #[derive(Debug)]
 pub struct BoxWidget {
-    pub orientation: Orientaion,
-    pub spacing: u32,
+    pub orientation: Orientation,
+    pub spacing: i32,
     pub class: Option<Vec<String>>,
     pub children: Option<Vec<WidgetType>>,
 }
@@ -38,7 +38,7 @@ pub enum WidgetType {
 }
 
 #[derive(Debug)]
-pub enum Orientaion {
+pub enum Orientation {
     Vertical,
     Horizontal,
 }
@@ -142,11 +142,11 @@ impl From<TSBox> for BoxWidget {
     }
 }
 
-impl From<TSOrientaionType> for Orientaion {
+impl From<TSOrientaionType> for Orientation {
     fn from(orientation_type: TSOrientaionType) -> Self {
         match orientation_type.orientaion.as_str() {
-            "h" => Orientaion::Horizontal,
-            "v" => Orientaion::Vertical,
+            "h" => Orientation::Horizontal,
+            "v" => Orientation::Vertical,
             _ => panic!("Unexpected orientation type"),
         }
     }
