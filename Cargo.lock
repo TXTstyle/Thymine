@@ -1034,15 +1034,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_sitter_test"
-version = "0.1.0"
-dependencies = [
- "gtk4",
- "rust-sitter",
- "rust-sitter-tool",
-]
-
-[[package]]
 name = "rustc-hash"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1250,6 +1241,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.38",
+]
+
+[[package]]
+name = "thymine"
+version = "0.1.0"
+dependencies = [
+ "gtk4",
+ "rust-sitter",
+ "rust-sitter-tool",
 ]
 
 [[package]]
