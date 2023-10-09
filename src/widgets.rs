@@ -1,4 +1,4 @@
-use crate::grammar::*;
+use crate::grammer::thymine::*;
 
 #[derive(Debug)]
 pub struct Window {
@@ -48,7 +48,7 @@ impl From<Expr> for Window {
         match expr {
             Expr::Window(_, _, title, widget, _) => Window {
                 title: title.title.title,
-                child: widget.map(|w| w.into())
+                child: widget.map(|w| w.into()),
             },
         }
     }

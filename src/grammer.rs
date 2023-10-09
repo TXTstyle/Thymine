@@ -1,5 +1,8 @@
-#[rust_sitter::grammar("widgets")]
-pub mod grammar {
+use chic::Error as ChicError;
+use rust_sitter::errors::{ParseError, ParseErrorReason};
+
+#[rust_sitter::grammar("thymine")]
+pub mod thymine {
 
     #[derive(Debug)]
     #[rust_sitter::language]
@@ -165,5 +168,47 @@ pub mod grammar {
     struct Whitespace {
         #[rust_sitter::leaf(pattern = r"\s|%%.*%%|%%%.*|\t")]
         _whitespace: (),
+    }
+}
+
+// Errors
+pub fn to_chic_error(
+    parse_err: ParseError,
+    source: &str,
+    chic_errors: &mut Vec<ChicError>,
+) -> ChicError {
+    match parse_err.reason {
+        ParseErrorReason::UnexpectedToken(token) => {
+            ChicError::new(format!("Unexpected token: `{}`", token)).error(
+                1,
+                parse_err.start,
+                parse_err.end,
+                source,
+                format!("found `{}`", token),
+            )
+        }
+        ParseErrorReason::FailedNode(errors) => {
+            let mut errors_tmp = Vec::new();
+            for error in errors {
+                errors_tmp.push(to_chic_error(error, source, chic_errors));
+            }
+            chic_errors.append(&mut errors_tmp);
+            ChicError::new("FailedNode").error(
+                1,
+                parse_err.start,
+                parse_err.end,
+                source,
+                "found here",
+            )
+        }
+        ParseErrorReason::MissingToken(token) => {
+            ChicError::new(format!("Missing token: `{}`", token)).error(
+                1,
+                parse_err.start,
+                parse_err.end,
+                source,
+                format!("found `{}`", token),
+            )
+        }
     }
 }

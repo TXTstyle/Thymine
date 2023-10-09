@@ -1,16 +1,16 @@
 #![allow(dead_code)]
 mod grammer;
+mod ui;
 mod utils;
 mod widgets;
-mod ui;
-use grammer::grammar;
-use ui::*;
-use std::env::args;
-use std::rc::Rc;
-use widgets::*;
-
+use crate::grammer::to_chic_error;
+use chic::Error as ChicError;
+use grammer::thymine;
 use gtk::prelude::*;
 use gtk::{glib, Application};
+use std::{env::args, rc::Rc};
+use ui::*;
+use widgets::*;
 
 const APP_ID: &str = "com.TXTstyle.tree";
 
@@ -25,11 +25,18 @@ fn main() -> glib::ExitCode {
     };
 
     let css_data = utils::read_file(&mut args, "-c").ok();
+    let mut chic_errors: Vec<ChicError> = Vec::new();
 
-    let tree = match grammar::parse(&input) {
+    let tree = match thymine::parse(&input) {
         Ok(s) => s,
         Err(err) => {
-            eprintln!("Error; {:#?}", err);
+            // eprintln!("Error; {:#?}", err);
+            let e = err.into_iter().next().unwrap();
+            to_chic_error(e, input.as_str(), &mut chic_errors);
+
+            for err in chic_errors {
+                eprintln!("{}", err.to_string());
+            }
             return glib::ExitCode::FAILURE;
         }
     };
@@ -46,4 +53,3 @@ fn main() -> glib::ExitCode {
     let empty: Vec<String> = vec![];
     app.run_with_args(&empty)
 }
-
