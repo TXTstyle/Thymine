@@ -12,10 +12,20 @@ use std::{env::args, rc::Rc};
 use ui::*;
 use widgets::*;
 
-const APP_ID: &str = "com.TXTstyle.tree";
+const APP_ID: &str = "com.TXTstyle.thymine";
 
 fn main() -> glib::ExitCode {
-    let mut args = args();
+    let mut args: Vec<String> = args().collect();
+    if args.len() <= 1 {
+        println!("{}", utils::print_help());
+        return glib::ExitCode::SUCCESS;
+    }
+
+    if utils::help_args(&mut args).is_some() {
+        println!("{}", utils::print_help());
+        return glib::ExitCode::SUCCESS;
+    }
+
     let input = match utils::read_file(&mut args, "-f") {
         Ok(i) => i,
         Err(err) => {
