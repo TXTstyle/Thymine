@@ -86,11 +86,36 @@ fn build_box(box_widget: &BoxWidget) -> gtk::Box {
     gtk_box
 }
 
+fn build_center(center_widget: &CenterWidget) -> gtk::CenterBox {
+    let gtk_center = gtk::CenterBox::builder();
+
+    let orientation = match center_widget.orientation {
+        Orientation::Vertical => gtk::Orientation::Vertical,
+        Orientation::Horizontal => gtk::Orientation::Horizontal,
+    };
+
+    let gtk_center = gtk_center.orientation(orientation);
+    let gtk_center = gtk_center.start_widget(&build_widget(&center_widget.child_start));
+    let gtk_center = gtk_center.center_widget(&build_widget(&center_widget.child_center));
+    let gtk_center = gtk_center.end_widget(&build_widget(&center_widget.child_end));
+    let gtk_center = gtk_center.build();
+
+    if let Some(class) = &center_widget.class {
+        // Apply classes to the box
+        for class_name in class.iter() {
+            gtk_center.add_css_class(class_name);
+        }
+    }
+
+    gtk_center
+}
+
 fn build_widget(widget: &WidgetType) -> gtk::Widget {
     match widget {
         WidgetType::Button(button) => gtk::Widget::from(build_button(button)),
         WidgetType::Label(label) => gtk::Widget::from(build_label(label)),
         WidgetType::Box(box_widget) => gtk::Widget::from(build_box(box_widget)),
+        WidgetType::Center(center) => gtk::Widget::from(build_center(center)),
     }
 }
 

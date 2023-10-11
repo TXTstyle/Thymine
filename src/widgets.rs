@@ -29,10 +29,20 @@ pub struct BoxWidget {
 }
 
 #[derive(Debug)]
+pub struct CenterWidget {
+    pub orientation: Orientation,
+    pub class: Option<Vec<String>>,
+    pub child_start: Box<WidgetType>,
+    pub child_center: Box<WidgetType>,
+    pub child_end: Box<WidgetType>,
+}
+
+#[derive(Debug)]
 pub enum WidgetType {
     Button(Button),
     Label(Label),
     Box(BoxWidget),
+    Center(CenterWidget),
 }
 
 #[derive(Debug)]
@@ -58,6 +68,7 @@ impl From<TSWidgetType> for WidgetType {
             TSWidgetType::Button(b) => WidgetType::Button(b.into()),
             TSWidgetType::Label(l) => WidgetType::Label(l.into()),
             TSWidgetType::Box(b) => WidgetType::Box(b.into()),
+            TSWidgetType::Center(c) => WidgetType::Center(c.into()),
         }
     }
 }
@@ -122,6 +133,39 @@ impl From<TSBox> for BoxWidget {
                     .map(WidgetType::from)
                     .collect()
             }),
+        }
+    }
+}
+
+impl From<Box<TSWidgetType>> for Box<WidgetType> {
+    fn from(widget: Box<TSWidgetType>) -> Self {
+        let w = match *widget {
+            TSWidgetType::Button(a) => WidgetType::Button(a.into()),
+            TSWidgetType::Label(l) => WidgetType::Label(l.into()),
+            TSWidgetType::Box(b) => WidgetType::Box(b.into()),
+            TSWidgetType::Center(c) => WidgetType::Center(c.into()),
+        };
+        Box::new(w)
+    }
+}
+
+impl From<WidgetType> for CenterWidget {
+    fn from(widget: WidgetType) -> Self {
+        match widget {
+            WidgetType::Center(widget) => widget,
+            _ => panic!("Unexpected WidgetType for CenterWidget conversion"),
+        }
+    }
+}
+
+impl From<TSCenterBox> for CenterWidget {
+    fn from(ts_center: TSCenterBox) -> Self {
+        CenterWidget {
+            orientation: ts_center.orientaion.into(),
+            class: ts_center.class.map(convert_class),
+            child_start: ts_center.children.child_1.into(),
+            child_center: ts_center.children.child_2.into(),
+            child_end: ts_center.children.child_3.into(),
         }
     }
 }

@@ -28,6 +28,7 @@ pub mod thymine {
         Button(TSButton),
         Label(TSLabel),
         Box(TSBox),
+        Center(TSCenterBox),
     }
 
     #[derive(Debug)]
@@ -38,6 +39,17 @@ pub mod thymine {
         ()
         )]
         pub children: Vec<TSWidgetType>,
+    }
+
+    #[derive(Debug)]
+    pub struct CenterChildren {
+        pub child_1: Box<TSWidgetType>,
+        #[rust_sitter::leaf(text = ";")]
+        _sep_start: (),
+        pub child_2: Box<TSWidgetType>,
+        #[rust_sitter::leaf(text = ";")]
+        _sep_end: (),
+        pub child_3: Box<TSWidgetType>,
     }
 
     #[derive(Debug)]
@@ -76,6 +88,19 @@ pub mod thymine {
         pub spacing: Option<Spacing>,
         pub class: Option<Class>,
         pub children: Option<Children>,
+        #[rust_sitter::leaf(text = "}")]
+        _param_end: (),
+    }
+
+    #[derive(Debug)]
+    pub struct TSCenterBox {
+        #[rust_sitter::leaf(text = "{")]
+        _param: (),
+        #[rust_sitter::leaf(text = "Center:")]
+        _widget: (),
+        pub orientaion: TSOrientaionType,
+        pub class: Option<Class>,
+        pub children: CenterChildren,
         #[rust_sitter::leaf(text = "}")]
         _param_end: (),
     }
