@@ -41,8 +41,10 @@ fn main() -> glib::ExitCode {
         Ok(s) => s,
         Err(err) => {
             // eprintln!("Error; {:#?}", err);
-            let e = err.into_iter().next().unwrap();
-            to_chic_error(e, input.as_str(), &mut chic_errors);
+            let mut errors_tmp = vec![];
+            err.into_iter()
+                .for_each(|e| errors_tmp.push(to_chic_error(e, input.as_str(), &mut chic_errors)));
+            chic_errors.append(&mut errors_tmp);
 
             for err in chic_errors {
                 eprintln!("{}", err.to_string());

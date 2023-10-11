@@ -11,7 +11,6 @@ pub struct Button {
     pub label: String,
     pub on_click: String,
     pub class: Option<Vec<String>>,
-    pub children: Option<Vec<WidgetType>>,
 }
 
 #[derive(Debug)]
@@ -19,7 +18,6 @@ pub struct Label {
     pub label: String,
     pub wrap: bool,
     pub class: Option<Vec<String>>,
-    pub children: Option<Vec<WidgetType>>,
 }
 
 #[derive(Debug)]
@@ -79,13 +77,6 @@ impl From<TSButton> for Button {
             label: ts_button.label.title,
             on_click: ts_button.on_click.event,
             class: ts_button.class.map(convert_class),
-            children: ts_button.children.map(|children| {
-                children
-                    .children
-                    .into_iter()
-                    .map(WidgetType::from)
-                    .collect()
-            }),
         }
     }
 }
@@ -105,13 +96,6 @@ impl From<TSLabel> for Label {
             label: ts_label.label.title,
             wrap: ts_label.wrap.map_or(false, |wrap| wrap.wrap.boolean),
             class: ts_label.class.map(convert_class),
-            children: ts_label.children.map(|children| {
-                children
-                    .children
-                    .into_iter()
-                    .map(WidgetType::from)
-                    .collect()
-            }),
         }
     }
 }

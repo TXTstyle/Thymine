@@ -49,7 +49,6 @@ pub mod thymine {
         pub label: Title,
         pub on_click: OnClick,
         pub class: Option<Class>,
-        pub children: Option<Children>,
         #[rust_sitter::leaf(text = "}")]
         _param_end: (),
     }
@@ -63,7 +62,6 @@ pub mod thymine {
         pub label: Title,
         pub wrap: Option<Wrap>,
         pub class: Option<Class>,
-        pub children: Option<Children>,
         #[rust_sitter::leaf(text = "}")]
         _param_end: (),
     }
