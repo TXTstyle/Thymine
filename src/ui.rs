@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, exit};
 use std::rc::Rc;
 
 use crate::widgets::*;
@@ -24,9 +24,17 @@ fn build_button(button: &Button) -> gtk::Button {
         // Handle button click
         // println!("Button clicked: {}", on_click);
         let mut args = on_click.split_whitespace();
-        Command::new(args.next().unwrap_or_else(|| panic!("Error; button on_click event failed; {}", on_click)))
+        let cmd = Command::new(args.next().unwrap_or_else(|| panic!("Error; button on_click event failed; {}", on_click)))
         .args(args)
-        .spawn().expect("spawn failed");
+        .spawn();
+
+        match cmd {
+            Ok(_) => {},
+            Err(err) => {
+            eprintln!("Error; Unable to call button event `{}`, {}", on_click, err);
+            exit(1)
+            },
+        }
     
     
     }));
